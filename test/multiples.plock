@@ -1,0 +1,14 @@
+// Program to print multiples of 3
+// Using while loop and modulus operator
+
+1 dup       // Enter the loop
+start
+  1 +       // Incrememnt
+  dup 3 %   // Duplicate and calculate modulus with 3
+  0 ==      // Check if it is equal to 0
+  start
+    dup .   // Print the value
+  1 end     // Exit without condition
+
+  dup 30 >  // Check if greater than 30 and exit
+end

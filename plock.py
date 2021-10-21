@@ -4,7 +4,6 @@ def interpreter(program):
     stack = []
     ref = []
     pointer = 0
-    program = program.split()
     refrer(program)
     runnableProgram = [code(val,i) for i,val in enumerate(program)]
     while pointer < len(runnableProgram):
@@ -37,7 +36,7 @@ def code(op,pp):
     elif op == '==' : return ('EQ',)
     elif op == '>' : return ('GT',)
     elif op == '<' : return ('LT',)
-    elif op == 'mod': return ('MOD',)
+    elif op == '%': return ('MOD',)
     elif op == 'dup' : return ('DUP',)
     else: return ('PUSH',op)
 
@@ -126,7 +125,10 @@ if __name__ == "__main__":
     if len(argv) < 2:
         print("ERROR: No argument given\nUSAGE: plock.py <FILENAME>")
         exit(1)
-    programCode = ""
+    programCode = []
     with open(argv[1]) as f:
-        programCode = f.read()
+        word = f.readlines();
+        word = [i.split(sep='//')[0] for i in word]
+        for i in word:
+            programCode.extend(i.split())
     interpreter(programCode)
