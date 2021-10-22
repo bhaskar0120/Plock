@@ -1,0 +1,7 @@
+1 . 1 . 1 1 1
+1 start
+ + dup .
+swap .
+over
+dup 255 >
+end
