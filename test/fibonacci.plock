@@ -1,7 +1,7 @@
-1 . 1 . 1 1 1
-1 start
- + dup .
-swap .
-over
-dup 255 >
-end
+1 . 1 . 1 1 1   // Initialize First 3 stack location as 1
+1 start         // Enter loop
+ + dup .        // Add two digits and print it
+swap            // Swap the top two stack locations 
+over            // Copy the second from top stack location to top
+dup 255 >       // Check if the number is bigger than 255
+end             // End
