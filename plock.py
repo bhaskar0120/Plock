@@ -1,6 +1,6 @@
 from sys import argv
 def interpreter(program):
-    global stack,ref,pointer
+    global stack,ref,pointer,functionMapper
     stack = []
     ref = []
     pointer = 0
@@ -26,8 +26,14 @@ def find(num):
         if i == num: return j
         if j == num: return i
 
-#Convert this to a map
+
+
+
+
+#TODO: Convert this to a map
 def code(op,pp):
+    global functionMapper
+    assert len(functionMapper) == 16, "Add the operation to function: code"
     if op == "." : return ('DUMP',)
     elif op == '+' : return ('ADD',)
     elif op == '-' :return ('SUB',)
@@ -44,7 +50,6 @@ def code(op,pp):
     elif op == 'over': return ('OVER',)
     elif op == 'drop': return ('DROP',)
     else: return ('PUSH',op)
-
 
 
 def start(val):
@@ -64,7 +69,6 @@ def over():
 def drop():
     global stack
     stack.pop()
-    
 
 def mod():
     global stack
@@ -121,27 +125,30 @@ def add():
     global stack
     stack.append(stack.pop()+stack.pop())
 
-functionMapper = {}
-functionMapper['DUMP'] = dump
-functionMapper['ADD'] = add
-functionMapper['SUB'] = sub
-functionMapper['MULT'] = mult
-functionMapper['START'] = start
-functionMapper['END'] = end
-functionMapper['DIV'] = div
-functionMapper['EQ'] = eq
-functionMapper['GT'] = gt
-functionMapper['LT'] = lt
-functionMapper['MOD'] = mod
-functionMapper['DUP'] = dup
-functionMapper['PUSH'] = push
-functionMapper['SWAP'] = swap
-functionMapper['DROP'] = drop
-functionMapper['OVER'] = over
+functionMapper ={
+'DUMP':dump,
+'ADD':add,
+'SUB':sub,
+'MULT':mult,
+'START':start,
+'END':end,
+'DIV':div,
+'EQ' :eq,
+'GT' :gt,
+'LT' :lt,
+'MOD':mod,
+'DUP':dup,
+'PUSH':push,
+'SWAP':swap,
+'DROP':drop,
+'OVER':over
+}
+
 
 stack = []
 ref = []
 pointer = 0
+
 if __name__ == "__main__":
     if len(argv) < 2:
         print("ERROR: No argument given\nUSAGE: plock.py <FILENAME>")
