@@ -14,10 +14,10 @@ Plock currently supports basic arithmetic operation but in the future the plan i
 
 #### Short term Goals
 
+- [x] Support string literals
+- [x] Add memory control
 - [ ] Turing complete
 - [ ] Add documentation of all commands
-- [ ] Add memory control
-- [ ] Support string literals
 - [ ] Add a basic compiler
 
 As of _right now_, it is an **interpreted language**

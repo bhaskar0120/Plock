@@ -1,0 +1,5 @@
+mem .
+mem 0 + 12 write
+mem 1 + 13 write 
+mem 0 + read .
+mem 1 + read .

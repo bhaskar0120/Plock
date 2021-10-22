@@ -1,19 +1,19 @@
 from sys import argv, stderr
-def interpreter(program):
-    global stack,ref,pointer,functionMapper
+def interpreter():
+    global stack,ref,pointer,functionMapper,program
     stack = []
     ref = []
     pointer = 0
-    refrer(program)
+    refrer()
     runnableProgram = [code(val,i) for i,val in enumerate(program)]
-    lexer(runnableProgram)
+    stack_strict(runnableProgram)
     while pointer < len(runnableProgram):
         a,*i = runnableProgram[pointer]
         functionMapper[a](*i)
         pointer += 1
 
-def refrer(program):
-    global ref
+def refrer():
+    global ref, program
     ref_stack = []
     for i in range(len(program)):
         if program[i] == 'start':
@@ -27,35 +27,67 @@ def find(num):
         if i == num: return j
         if j == num: return i
 
+def lexer_file(programFile):
+    global program
+    try:
+        word = []
+        with open(programFile) as f:
+            word = f.readlines()
+        word = [i.split(sep="//")[0] for i in word]
+        for i,val in enumerate(word):
+            quote_count = val.count('"')
+            if not quote_count % 2 == 0:
+                stderr.write("ERROR: Missing quotation mark at line {}\n".format(i+1))
+                exit(1)
+        programCode = []
+        for i in word:
+            programCode.extend(i.split())
+        adding_stack = []
+        add_to_stack = False
+        for i in programCode:
+            adding_stack.append(i)
+            if i.count('"') == 1:
+                add_to_stack = not add_to_stack
+            if not add_to_stack:
+                program.append(' '.join(adding_stack))
+                adding_stack.clear()
+    except FileNotFoundError:
+        stderr.write("ERROR: Specified File not found {}\n".format(programFile))
+        exit(1)
+
 stackConsumption ={
-'DUMP'  : (-1,1),
-'ADD'   : (-1,2),
-'SUB'   : (-1,2),
-'MULT'  : (-1,2),
-'START' : (-1,1),
-'END'   : (-1,1),
-'DIV'   : (-1,2),
-'EQ'    : (-1,2),
-'GT'    : (-1,2),
-'LT'    : (-1,2),
-'MOD'   : (-1,2),
-'DUP'   : ( 1,1),
-'PUSH'  : ( 1,0),
-'SWAP'  : ( 0,2),
-'DROP'  : (-1,1),
-'OVER'  : ( 1,2), 
-'NOT'   : ( 0,1),
-'AND'   : (-1,2),
-'OR'    : (-1,2),
+'DUMP'    : (-1,1),
+'ADD'     : (-1,2),
+'SUB'     : (-1,2),
+'MULT'    : (-1,2),
+'START'   : (-1,1),
+'END'     : (-1,1),
+'DIV'     : (-1,2),
+'EQ'      : (-1,2),
+'GT'      : (-1,2),
+'LT'      : (-1,2),
+'MOD'     : (-1,2),
+'DUP'     : ( 1,1),
+'PUSH'    : ( 1,0),
+'SWAP'    : ( 0,2),
+'DROP'    : (-1,1),
+'OVER'    : ( 1,2), 
+'NOT'     : ( 0,1),
+'AND'     : (-1,2),
+'OR'      : (-1,2),
+'MEM'     : ( 1,0),
+'READ'    : ( 0,1),
+'WRITE'   : (-2,2),
+'PUSHSTR' : ( 1,0),
 }
 
-def lexer(program):
+def stack_strict(program):
     global stackConsumption
     stack_counter = 0
     for pp,i in enumerate(program):
         x = stackConsumption[i[0]]
         if stack_counter < x[1]:
-            stderr.write("ERROR: Trying to read from empty stack at operation {}, {}\n".format(pp, i[0]));
+            stderr.write("ERROR: Trying to read from empty stack at operation {}, {}\n".format(pp, i[0]))
             exit(1)
         stack_counter+=x[0]
 
@@ -66,7 +98,7 @@ def code(op,pp):
     global functionMapper
 #Development Only ----------------------
     global stackConsumption
-    assert 19 == len(stackConsumption), "Add the operation to function: code"
+    assert 23 == len(stackConsumption), "Discrepancy in function: code"
 #---------------------------------------
     if op == "." : return ('DUMP',)
     elif op == '+' : return ('ADD',)
@@ -86,7 +118,17 @@ def code(op,pp):
     elif op == '!' : return ('NOT',)
     elif op == '&' : return ('AND',)
     elif op == '|' : return ('OR',)
-    else: return ('PUSH',op)
+    elif op == 'mem' : return ('MEM',)
+    elif op == 'read' : return ('READ',)
+    elif op == 'write' : return ('WRITE',)
+    elif op[0] == '"' : return ('PUSHSTR',op[1:-1])
+    else:
+        try: 
+            x = int(op)
+            return ('PUSH',x)
+        except ValueError:
+            stderr.write("ERROR: Unknown instruction {} at instruction number {}\n".format(op,pp))
+            exit(1)
 
 
 def start(val):
@@ -123,7 +165,14 @@ def end(val):
         
 def push(val):
     global stack
-    stack.append(int(val))
+    stack.append(val)
+
+def pushstr(val):
+    global stack,memory
+    x = bytearray(val,'utf-8')
+    stack.append(len(memory))
+    memory.extend(x)
+    
 
 def dump():
     global stack
@@ -169,52 +218,69 @@ def mult():
 
 def sub():
     global stack
-    a = stack.pop();
+    a = stack.pop()
     stack.append(stack.pop()-a)
 
 def add():
     global stack
     stack.append(stack.pop()+stack.pop())
 
+def mem():
+    global stack
+    stack.append(0) #Hard coded for now, must change in compilation mode
+
+def write():
+    global stack, memory
+    a = stack.pop()
+    memory[stack.pop()] = a
+
+def read():
+    global stack, memory
+    stack.append(memory[stack.pop()])
+
 functionMapper ={
-'DUMP'  :dump,
-'ADD'   :add,
-'SUB'   :sub,
-'MULT'  :mult,
-'START' :start,
-'END'   :end,
-'DIV'   :div,
-'EQ'    :eq,
-'GT'    :gt,
-'LT'    :lt,
-'MOD'   :mod,
-'DUP'   :dup,
-'PUSH'  :push,
-'SWAP'  :swap,
-'DROP'  :drop,
-'OVER'  :over,
-'NOT'   :Not,
-'AND'   :And,
-'OR'    :Or,
+'DUMP'    :dump,
+'ADD'     :add,
+'SUB'     :sub,
+'MULT'    :mult,
+'START'   :start,
+'END'     :end,
+'DIV'     :div,
+'EQ'      :eq,
+'GT'      :gt,
+'LT'      :lt,
+'MOD'     :mod,
+'DUP'     :dup,
+'PUSH'    :push,
+'SWAP'    :swap,
+'DROP'    :drop,
+'OVER'    :over,
+'NOT'     :Not,
+'AND'     :And,
+'OR'      :Or,
+'MEM'     :mem,
+'WRITE'   :write,
+'READ'    :read,
+'PUSHSTR' :pushstr,
 }
 
 
 stack = []
 ref = []
 pointer = 0
+MAX_MEMORY = 64000
+memory = bytearray(MAX_MEMORY)
+program = []
+
+            
 
 if __name__ == "__main__":
     if len(argv) < 2:
         stderr.write("ERROR: No argument given\nUSAGE: plock.py <FILENAME>\n")
         exit(1)
-    programCode = []
-    with open(argv[1]) as f:
-        word = f.readlines();
-        word = [i.split(sep='//')[0] for i in word]
-        for i in word:
-            programCode.extend(i.split())
+    lexer_file(argv[1])
     #Development only
-    assert len(functionMapper) == len(stackConsumption), "Add function to functionMapper"
-    assert len(stackConsumption) == len(stackConsumption), "Add values to stackConsumption"
-    interpreter(programCode)
+    assert len(functionMapper) == len(stackConsumption), "Discrepancy in functionMapper"
+    assert len(stackConsumption) == len(stackConsumption), "Discrepancy in  stackConsumption"
+    interpreter()
     
