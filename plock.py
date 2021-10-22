@@ -13,11 +13,12 @@ def interpreter(program):
 
 def refrer(program):
     global ref
+    ref_stack = []
     for i in range(len(program)):
         if program[i] == 'start':
-            stack.append(i)
+            ref_stack.append(i)
         elif program[i] == 'end':
-            ref.append((stack.pop(),i))
+            ref.append((ref_stack.pop(),i))
 
 def find(num):
     global ref
@@ -25,6 +26,7 @@ def find(num):
         if i == num: return j
         if j == num: return i
 
+#Convert this to a map
 def code(op,pp):
     if op == "." : return ('DUMP',)
     elif op == '+' : return ('ADD',)
@@ -38,6 +40,9 @@ def code(op,pp):
     elif op == '<' : return ('LT',)
     elif op == '%': return ('MOD',)
     elif op == 'dup' : return ('DUP',)
+    elif op == 'swap': return ('SWAP',)
+    elif op == 'over': return ('OVER',)
+    elif op == 'drop': return ('DROP',)
     else: return ('PUSH',op)
 
 
@@ -48,6 +53,19 @@ def start(val):
     if stack.pop() == 0:
         pointer = val
         
+def swap():
+    global stack
+    (stack[-1] ,stack[-2]) = (stack[-2] , stack[-1])
+
+def over():
+    global stack
+    stack.append(stack[-2])
+
+def drop():
+    global stack
+    stack.pop()
+    
+
 def mod():
     global stack
     a= stack.pop()
@@ -117,6 +135,9 @@ functionMapper['LT'] = lt
 functionMapper['MOD'] = mod
 functionMapper['DUP'] = dup
 functionMapper['PUSH'] = push
+functionMapper['SWAP'] = swap
+functionMapper['DROP'] = drop
+functionMapper['OVER'] = over
 
 stack = []
 ref = []
