@@ -1,0 +1,7 @@
+//This test is just meant for performance testing
+
+0 1 start
+1 +
+dup
+100_000 == end
+.

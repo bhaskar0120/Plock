@@ -1,0 +1,5 @@
+0 1 start     // Enter the block
+  dup .
+  1 +
+  dup 30 ==
+end
