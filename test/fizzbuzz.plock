@@ -1,0 +1,29 @@
+// FizzBuzz but with 69-420 upto 30
+// Not the most readable code 
+
+0 1 start                       // Start of the while block
+  1 +                           // Increment counter
+  dup 3 % over 5 % + 0 == dup   // If counter divisible by both 3 and 5
+  start                         // Start of the if block
+    69420 .                     // Print 69420 (FizzBuzz)
+  1 end                         // End of the if block
+  0 ==                          // Not condition
+  start                         // Start of the else block
+    dup 3 %  0 == dup           // If counter is divisible by 3
+    start                       // Start of the if block
+      69 .                      // Print 69 (Fizz)
+    1 end
+    0 ==                        // Not condition
+    start                       // Start of the else block
+      dup 5 % 0 == dup          // If coounter is divisible by 5
+      start                     // Start of the if block
+        420 .                   // Print 420 (Buzz)
+      1 end
+      0 ==                      // Not condition
+      start                     // Start of the else block
+        dup .                   // Print the counter
+      1 end                     // End of the blocks
+    1 end
+  1 end
+  dup 30 ==                     // Check for the condition of while block
+end                             // End of while block
