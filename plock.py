@@ -44,6 +44,9 @@ stackConsumption ={
 'SWAP'  : ( 0,2),
 'DROP'  : (-1,1),
 'OVER'  : ( 1,2), 
+'NOT'   : ( 0,1),
+'AND'   : (-1,2),
+'OR'    : (-1,2),
 }
 
 def lexer(program):
@@ -61,7 +64,10 @@ def lexer(program):
 #TODO: Convert this to a map
 def code(op,pp):
     global functionMapper
-    assert len(functionMapper) == 16, "Add the operation to function: code"
+#Development Only ----------------------
+    global stackConsumption
+    assert 19 == len(stackConsumption), "Add the operation to function: code"
+#---------------------------------------
     if op == "." : return ('DUMP',)
     elif op == '+' : return ('ADD',)
     elif op == '-' :return ('SUB',)
@@ -77,6 +83,9 @@ def code(op,pp):
     elif op == 'swap': return ('SWAP',)
     elif op == 'over': return ('OVER',)
     elif op == 'drop': return ('DROP',)
+    elif op == '!' : return ('NOT',)
+    elif op == '&' : return ('AND',)
+    elif op == '|' : return ('OR',)
     else: return ('PUSH',op)
 
 
@@ -135,6 +144,20 @@ def eq():
     if stack.pop() == stack.pop(): stack.append(1)
     else: stack.append(0)
 
+def Not():
+    global stack
+    stack[-1] = int(not stack[-1])
+
+def And():
+    global stack
+    a = stack.pop()
+    stack[-1] &= a 
+
+def Or():
+    global stack
+    a = stack.pop()
+    stack[-1] |= a
+
 def div():
     global stack
     a = stack.pop()
@@ -169,7 +192,10 @@ functionMapper ={
 'PUSH'  :push,
 'SWAP'  :swap,
 'DROP'  :drop,
-'OVER'  :over
+'OVER'  :over,
+'NOT'   :Not,
+'AND'   :And,
+'OR'    :Or,
 }
 
 
@@ -187,4 +213,8 @@ if __name__ == "__main__":
         word = [i.split(sep='//')[0] for i in word]
         for i in word:
             programCode.extend(i.split())
+    #Development only
+    assert len(functionMapper) == len(stackConsumption), "Add function to functionMapper"
+    assert len(stackConsumption) == len(stackConsumption), "Add values to stackConsumption"
     interpreter(programCode)
+    
