@@ -1,4 +1,4 @@
-from sys import argv
+from sys import argv, stderr
 def interpreter(program):
     global stack,ref,pointer,functionMapper
     stack = []
@@ -6,6 +6,7 @@ def interpreter(program):
     pointer = 0
     refrer(program)
     runnableProgram = [code(val,i) for i,val in enumerate(program)]
+    lexer(runnableProgram)
     while pointer < len(runnableProgram):
         a,*i = runnableProgram[pointer]
         functionMapper[a](*i)
@@ -26,7 +27,34 @@ def find(num):
         if i == num: return j
         if j == num: return i
 
+stackConsumption ={
+'DUMP'  : (-1,1),
+'ADD'   : (-1,2),
+'SUB'   : (-1,2),
+'MULT'  : (-1,2),
+'START' : (-1,1),
+'END'   : (-1,1),
+'DIV'   : (-1,2),
+'EQ'    : (-1,2),
+'GT'    : (-1,2),
+'LT'    : (-1,2),
+'MOD'   : (-1,2),
+'DUP'   : ( 1,1),
+'PUSH'  : ( 1,0),
+'SWAP'  : ( 0,2),
+'DROP'  : (-1,1),
+'OVER'  : ( 1,2), 
+}
 
+def lexer(program):
+    global stackConsumption
+    stack_counter = 0
+    for pp,i in enumerate(program):
+        x = stackConsumption[i[0]]
+        if stack_counter < x[1]:
+            stderr.write("ERROR: Trying to read from empty stack at operation {}, {}\n".format(pp, i[0]));
+            exit(1)
+        stack_counter+=x[0]
 
 
 
@@ -126,22 +154,22 @@ def add():
     stack.append(stack.pop()+stack.pop())
 
 functionMapper ={
-'DUMP':dump,
-'ADD':add,
-'SUB':sub,
-'MULT':mult,
-'START':start,
-'END':end,
-'DIV':div,
-'EQ' :eq,
-'GT' :gt,
-'LT' :lt,
-'MOD':mod,
-'DUP':dup,
-'PUSH':push,
-'SWAP':swap,
-'DROP':drop,
-'OVER':over
+'DUMP'  :dump,
+'ADD'   :add,
+'SUB'   :sub,
+'MULT'  :mult,
+'START' :start,
+'END'   :end,
+'DIV'   :div,
+'EQ'    :eq,
+'GT'    :gt,
+'LT'    :lt,
+'MOD'   :mod,
+'DUP'   :dup,
+'PUSH'  :push,
+'SWAP'  :swap,
+'DROP'  :drop,
+'OVER'  :over
 }
 
 
@@ -151,7 +179,7 @@ pointer = 0
 
 if __name__ == "__main__":
     if len(argv) < 2:
-        print("ERROR: No argument given\nUSAGE: plock.py <FILENAME>")
+        stderr.write("ERROR: No argument given\nUSAGE: plock.py <FILENAME>\n")
         exit(1)
     programCode = []
     with open(argv[1]) as f:
