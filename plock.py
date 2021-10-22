@@ -76,8 +76,14 @@ stackConsumption ={
 'AND'     : (-1,2),
 'OR'      : (-1,2),
 'MEM'     : ( 1,0),
-'READ'    : ( 0,1),
-'WRITE'   : (-2,2),
+'READ8'    : ( 0,1),
+'WRITE8'   : (-2,2),
+'READ16'    : ( 0,1),
+'WRITE16'   : (-2,2),
+'READ32'    : ( 0,1),
+'WRITE32'   : (-2,2),
+'READ64'    : ( 0,1),
+'WRITE64'   : (-2,2),
 'PUSHSTR' : ( 1,0),
 }
 
@@ -98,7 +104,7 @@ def code(op,pp):
     global functionMapper
 #Development Only ----------------------
     global stackConsumption
-    assert 23 == len(stackConsumption), "Discrepancy in function: code"
+    assert 29 == len(stackConsumption), "Discrepancy in function: code"
 #---------------------------------------
     if op == "." : return ('DUMP',)
     elif op == '+' : return ('ADD',)
@@ -119,8 +125,14 @@ def code(op,pp):
     elif op == '&' : return ('AND',)
     elif op == '|' : return ('OR',)
     elif op == 'mem' : return ('MEM',)
-    elif op == 'read' : return ('READ',)
-    elif op == 'write' : return ('WRITE',)
+    elif op == 'read8' : return ('READ8',)
+    elif op == 'write8' : return ('WRITE8',)
+    elif op == 'read16' : return ('READ16',)
+    elif op == 'write16' : return ('WRITE16',)
+    elif op == 'read32' : return ('READ32',)
+    elif op == 'write32' : return ('WRITE32',)
+    elif op == 'read64' : return ('READ64',)
+    elif op == 'write64' : return ('WRITE64',)
     elif op[0] == '"' : return ('PUSHSTR',op[1:-1])
     else:
         try: 
@@ -172,7 +184,6 @@ def pushstr(val):
     x = bytearray(val,'utf-8')
     stack.append(len(memory))
     memory.extend(x)
-    
 
 def dump():
     global stack
@@ -229,14 +240,51 @@ def mem():
     global stack
     stack.append(0) #Hard coded for now, must change in compilation mode
 
-def write():
+def write8():
     global stack, memory
     a = stack.pop()
     memory[stack.pop()] = a
 
-def read():
+def write16():
+    global stack, memory
+    a = stack.pop()
+    b = stack.pop()
+    for i,val in enumerate(a.to_bytes(2,'big')):
+        memory[b+i] =val
+
+def write32():
+    global stack, memory
+    a = stack.pop()
+    b = stack.pop()
+    for i,val in enumerate(a.to_bytes(4,'big')):
+        memory[b+i] =val
+
+def write64():
+    global stack, memory
+    a = stack.pop()
+    b = stack.pop()
+    for i,val in enumerate(a.to_bytes(8,'big')):
+        memory[b+i] =val
+
+
+def read8():
     global stack, memory
     stack.append(memory[stack.pop()])
+
+def read16():
+    global stack, memory
+    a = stack.pop()
+    stack.append(int.from_bytes(memory[a:a+2],'big'))
+
+def read32():
+    global stack, memory
+    a = stack.pop()
+    stack.append(int.from_bytes(memory[a:a+4],'big'))
+
+def read64():
+    global stack, memory
+    a = stack.pop()
+    stack.append(int.from_bytes(memory[a:a+8],'big'))
 
 functionMapper ={
 'DUMP'    :dump,
@@ -259,8 +307,14 @@ functionMapper ={
 'AND'     :And,
 'OR'      :Or,
 'MEM'     :mem,
-'WRITE'   :write,
-'READ'    :read,
+'WRITE8'   :write8,
+'READ8'    :read8,
+'WRITE16'   :write16,
+'READ16'    :read16,
+'WRITE32'   :write32,
+'READ32'    :read32,
+'WRITE64'   :write64,
+'READ64'    :read64,
 'PUSHSTR' :pushstr,
 }
 

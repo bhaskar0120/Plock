@@ -5,7 +5,7 @@ over
 +
 mem
 +
-read .
+read8 .
 1 +
 dup 11 ==
 end
