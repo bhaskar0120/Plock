@@ -56,35 +56,40 @@ def lexer_file(programFile):
         exit(1)
 
 stackConsumption ={
-'DUMP'    : (-1,1),
-'ADD'     : (-1,2),
-'SUB'     : (-1,2),
-'MULT'    : (-1,2),
-'START'   : (-1,1),
-'END'     : (-1,1),
-'DIV'     : (-1,2),
-'EQ'      : (-1,2),
-'GT'      : (-1,2),
-'LT'      : (-1,2),
-'MOD'     : (-1,2),
-'DUP'     : ( 1,1),
-'PUSH'    : ( 1,0),
-'SWAP'    : ( 0,2),
-'DROP'    : (-1,1),
-'OVER'    : ( 1,2), 
-'NOT'     : ( 0,1),
-'AND'     : (-1,2),
-'OR'      : (-1,2),
-'MEM'     : ( 1,0),
-'READ8'    : ( 0,1),
-'WRITE8'   : (-2,2),
+'DUMP'      : (-1,1),
+'ADD'       : (-1,2),
+'SUB'       : (-1,2),
+'MULT'      : (-1,2),
+'START'     : (-1,1),
+'END'       : (-1,1),
+'DIV'       : (-1,2),
+'EQ'        : (-1,2),
+'GT'        : (-1,2),
+'LT'        : (-1,2),
+'MOD'       : (-1,2),
+'DUP'       : ( 1,1),
+'PUSH'      : ( 1,0),
+'SWAP'      : ( 0,2),
+'DROP'      : (-1,1),
+'OVER'      : ( 1,2), 
+'NOT'       : ( 0,1),
+'AND'       : (-1,2),
+'OR'        : (-1,2),
+'SHL'       : (-1,2),
+'SHR'       : (-1,2),
+'MEM'       : ( 1,0),
+'READ8'     : ( 0,1),
+'WRITE8'    : (-2,2),
 'READ16'    : ( 0,1),
 'WRITE16'   : (-2,2),
 'READ32'    : ( 0,1),
 'WRITE32'   : (-2,2),
 'READ64'    : ( 0,1),
 'WRITE64'   : (-2,2),
-'PUSHSTR' : ( 1,0),
+'PUTS'      : ( 0,1),
+'PRINTF'    : ( 0,1),
+'SCANF'     : ( 0,1),
+'PUSHSTR'   : ( 1,0),
 }
 
 def stack_strict(program):
@@ -104,7 +109,7 @@ def code(op,pp):
     global functionMapper
 #Development Only ----------------------
     global stackConsumption
-    assert 29 == len(stackConsumption), "Discrepancy in function: code"
+    assert 34 == len(stackConsumption), "Discrepancy in function: code"
 #---------------------------------------
     if op == "." : return ('DUMP',)
     elif op == '+' : return ('ADD',)
@@ -133,6 +138,11 @@ def code(op,pp):
     elif op == 'write32' : return ('WRITE32',)
     elif op == 'read64' : return ('READ64',)
     elif op == 'write64' : return ('WRITE64',)
+    elif op == 'puts' : return ('PUTS',)
+    elif op == 'printf' : return ('PRINTF',)
+    elif op == 'scanf' : return ('SCANF',)
+    elif op == '<<' : return('SHL',)
+    elif op == '>>' : return('SHR',)
     elif op[0] == '"' : return ('PUSHSTR',op[1:-1])
     else:
         try: 
@@ -182,6 +192,7 @@ def push(val):
 def pushstr(val):
     global stack,memory
     x = bytearray(val,'utf-8')
+    x.append(0x00)
     stack.append(len(memory))
     memory.extend(x)
 
@@ -266,7 +277,6 @@ def write64():
     for i,val in enumerate(a.to_bytes(8,'big')):
         memory[b+i] =val
 
-
 def read8():
     global stack, memory
     stack.append(memory[stack.pop()])
@@ -286,36 +296,77 @@ def read64():
     a = stack.pop()
     stack.append(int.from_bytes(memory[a:a+8],'big'))
 
+def shl():
+    global stack
+    a = stack.pop()
+    stack[-1] = stack[-1] << a
+
+def shr():
+    global stack
+    a = stack.pop()
+    stack[-1] = stack[-1] >> a
+
+#Switch these to external functions
+def printf():
+    a = stack.pop()
+    x = memory[a]
+    buf = []
+    while not x == 0:
+        buf.append(chr(x))
+        a += 1
+        x = memory[a]
+    print(''.join(buf),end="")
+    stack.append(len(buff))
+
+def puts():
+    a = stack.pop()
+    x = memory[a]
+    buf = []
+    while not x == 0:
+        buf.append(chr(x))
+        a += 1
+        x = memory[a]
+    print(''.join(buf))
+    stack.append(len(buf)+1)
+
+def scanf():
+    pass
+
 functionMapper ={
-'DUMP'    :dump,
-'ADD'     :add,
-'SUB'     :sub,
-'MULT'    :mult,
-'START'   :start,
-'END'     :end,
-'DIV'     :div,
-'EQ'      :eq,
-'GT'      :gt,
-'LT'      :lt,
-'MOD'     :mod,
-'DUP'     :dup,
-'PUSH'    :push,
-'SWAP'    :swap,
-'DROP'    :drop,
-'OVER'    :over,
-'NOT'     :Not,
-'AND'     :And,
-'OR'      :Or,
-'MEM'     :mem,
-'WRITE8'   :write8,
-'READ8'    :read8,
+'DUMP'      :dump,
+'ADD'       :add,
+'SUB'       :sub,
+'MULT'      :mult,
+'START'     :start,
+'END'       :end,
+'DIV'       :div,
+'EQ'        :eq,
+'GT'        :gt,
+'LT'        :lt,
+'MOD'       :mod,
+'DUP'       :dup,
+'PUSH'      :push,
+'SWAP'      :swap,
+'DROP'      :drop,
+'OVER'      :over,
+'NOT'       :Not,
+'AND'       :And,
+'OR'        :Or,
+'MEM'       :mem,
+'WRITE8'    :write8,
+'READ8'     :read8,
 'WRITE16'   :write16,
 'READ16'    :read16,
 'WRITE32'   :write32,
 'READ32'    :read32,
 'WRITE64'   :write64,
 'READ64'    :read64,
-'PUSHSTR' :pushstr,
+'PUSHSTR'   :pushstr,
+'PUTS'      :puts,
+'PRINTF'    :printf,
+'SCANF'     :scanf,
+'SHL'       :shl,
+'SHR'       :shr,
 }
 
 
