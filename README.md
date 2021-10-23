@@ -16,7 +16,7 @@ Plock currently supports basic arithmetic operation but in the future the plan i
 
 - [x] Support string literals
 - [x] Add memory control
-- [ ] Turing complete
+- [x] Turing complete
 - [ ] Add documentation of all commands
 - [ ] Add a basic compiler
 
@@ -25,6 +25,6 @@ As of _right now_, it is an **interpreted language**
 ### Give it a spin
 
 
-```py plock.py test/multiples.plock ```
+```py plock.py test/rule110.plock ```
 
 
