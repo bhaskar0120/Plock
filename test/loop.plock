@@ -1,5 +1,5 @@
 0 1 start     // Enter the block
-  dup .
-  1 +
-  dup 30 ==
-end
+  dup .       // Copy the last value in the stack
+  1 +         // Increment by one
+  dup 30 ==   // Check if equal to 30
+end           // End

@@ -1,5 +1,8 @@
-mem .
-mem 0 + 12 write
-mem 1 + 13 write 
-mem 0 + read .
-mem 1 + read .
+mem .                 // prints the location of the start of the memory
+mem 0 + 1 write8      // Write 1 to initial memory location
+mem 1 + 2 write8      // Write 2 to next memory location
+mem 0 + read8 .       // Read 1 byte from starting memory location (1)
+mem 1 + read8 .       // Read 1 byte from next memory location (2)
+mem 3 + 257 write16   // Write 1 and 1 to the next two memory location 
+mem 3 + read16 .      // Read the last memory location (257)
+mem read32 .          // Should say (16908545)

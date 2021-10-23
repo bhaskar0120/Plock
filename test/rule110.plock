@@ -1,0 +1,44 @@
+mem 99 + 1 write8
+
+0 1 start
+  1 1 start
+    dup 1 -  mem + read8 2 <<
+    over mem + read8 1 << |
+    over 1 + mem + read8 |
+    110 swap >> 1 &
+    over mem + 200 +
+    swap
+    write8
+    1 +
+    dup 100 ==
+  end drop
+
+   0 1 start
+    dup mem + read8
+    1 == dup
+    start
+      over mem + 100 +
+      64 write8
+    1 end
+    ! start
+      dup mem + 100 +
+      32 write8
+    1 end
+    1 +
+    dup 100 ==
+  end drop
+  
+   mem 100 + puts drop
+  0 1 start
+    dup mem + 
+    over mem + 200 + read8
+    write8
+    1 +
+    dup 100 ==
+  end drop
+
+  
+  1 +
+  dup 99 ==
+end drop
+

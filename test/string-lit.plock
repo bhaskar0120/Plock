@@ -1,12 +1,8 @@
 "Hello world" 
 0 1 start
 over
-over
-+
-mem
-+
-read8 .
+puts drop
 1 +
-dup 11 ==
+dup 20 ==
 end
 
