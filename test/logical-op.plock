@@ -1,5 +1,5 @@
 // Some tests for logical and bitwise operations
-1 ! .
-1 2 & .
-3 2 & .
-1 2 | .
+1 not .
+1 2 and .
+3 2 and .
+1 2 or .

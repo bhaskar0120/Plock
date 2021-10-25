@@ -3,9 +3,9 @@ mem 99 + 1 write8
 0 1 start
   1 1 start
     dup 1 -  mem + read8 2 <<
-    over mem + read8 1 << |
-    over 1 + mem + read8 |
-    110 swap >> 1 &
+    over mem + read8 1 << or
+    over 1 + mem + read8 or
+    110 swap >> 1 and
     over mem + 200 +
     swap
     write8
@@ -20,7 +20,7 @@ mem 99 + 1 write8
       over mem + 100 +
       64 write8
     1 end
-    ! start
+    not start
       dup mem + 100 +
       32 write8
     1 end
