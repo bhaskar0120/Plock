@@ -102,47 +102,49 @@ def stack_strict(program):
             exit(1)
         stack_counter+=x[0]
 
+opToFunctionCode = {
+'.':         'DUMP'   ,
+'+':         'ADD'    ,
+'-':         'SUB'    ,
+'*':         'MULT'   ,
+'start':     'START'  ,
+'end':       'END'    ,
+'/':         'DIV'    ,
+'==':        'EQ'     ,
+'>':         'GT'     ,
+'<':         'LT'     ,
+'%':         'MOD'    ,
+'dup':       'DUP'    ,
+'swap':      'SWAP'   ,
+'drop':      'DROP'   ,
+'over':      'OVER'   ,
+'not':       'NOT'    ,
+'and':       'AND'    ,
+'or':        'OR'     ,
+'<<':        'SHL'    ,
+'>>':        'SHR'    ,
+'mem':       'MEM'    ,
+'read8':     'READ8'  ,
+'write8':    'WRITE8' ,
+'read16':    'READ16' ,
+'write16':   'WRITE16',
+'read32':    'READ32' ,
+'write32':   'WRITE32',
+'read64':    'READ64' ,
+'write64':   'WRITE64',
+'puts':      'PUTS'   ,
+'printf':    'PRINTF' ,
+'scanf':     'SCANF'  ,
+}
 
-
-#TODO: Convert this to a map
 def code(op,pp):
-    global functionMapper
-#Development Only ----------------------
+    global functionMapper, opToFunctionCode
+#-----------Development Only -----------
     global stackConsumption
-    assert 34 == len(stackConsumption), "Discrepancy in function: code"
+    assert len(opToFunctionCode) == len(stackConsumption)-2, "Discrepancy in opToFunctionCode"
 #---------------------------------------
-    if op == "." : return ('DUMP',)
-    elif op == '+' : return ('ADD',)
-    elif op == '-' :return ('SUB',)
-    elif op == '*' : return ('MULT',)
-    elif op == 'start' : return ('START',find(pp))
-    elif op == 'end' :  return ('END',find(pp))
-    elif op == '/' : return ('DIV',)
-    elif op == '==' : return ('EQ',)
-    elif op == '>' : return ('GT',)
-    elif op == '<' : return ('LT',)
-    elif op == '%': return ('MOD',)
-    elif op == 'dup' : return ('DUP',)
-    elif op == 'swap': return ('SWAP',)
-    elif op == 'over': return ('OVER',)
-    elif op == 'drop': return ('DROP',)
-    elif op == '!' : return ('NOT',)
-    elif op == '&' : return ('AND',)
-    elif op == '|' : return ('OR',)
-    elif op == 'mem' : return ('MEM',)
-    elif op == 'read8' : return ('READ8',)
-    elif op == 'write8' : return ('WRITE8',)
-    elif op == 'read16' : return ('READ16',)
-    elif op == 'write16' : return ('WRITE16',)
-    elif op == 'read32' : return ('READ32',)
-    elif op == 'write32' : return ('WRITE32',)
-    elif op == 'read64' : return ('READ64',)
-    elif op == 'write64' : return ('WRITE64',)
-    elif op == 'puts' : return ('PUTS',)
-    elif op == 'printf' : return ('PRINTF',)
-    elif op == 'scanf' : return ('SCANF',)
-    elif op == '<<' : return('SHL',)
-    elif op == '>>' : return('SHR',)
+    x = (0,)
+    if op in opToFunctionCode: x =  (opToFunctionCode[op],)
     elif op[0] == '"' : return ('PUSHSTR',op[1:-1])
     else:
         try: 
@@ -151,6 +153,10 @@ def code(op,pp):
         except ValueError:
             stderr.write("ERROR: Unknown instruction {} at instruction number {}\n".format(op,pp))
             exit(1)
+
+    if op == 'start' or op == 'end': x = (*x, find(pp)) 
+    return x;
+
 
 
 def start(val):
